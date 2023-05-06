@@ -1,9 +1,11 @@
 import telebot
 import datetime
+import matplotlib.pyplot as plt
+import numpy as np
 
 bot = telebot.TeleBot("5906211167:AAFG-i9_ljPz_HR6Pwb_5uCfruU4ROmQt8M")
 
-key_markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+key_markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
 key_markup.add("calculate BMI","weight chart")
 
 @bot.message_handler(commands=['start'])
@@ -12,10 +14,15 @@ def start_bot(message):
 
 @bot.message_handler(func=lambda m: True)
 def info(message):
+    global x_current_date
     if message.text == "calculate BMI":
         msg = bot.send_message(message.chat.id, "Enter your weight in kg")
         bot.register_next_step_handler(msg, weight)
-
+    elif message.text == "weight chart":
+        xpoints = np.array([1, 2, 6, 8])
+        ypoints = np.array([3, 8, 1, 10])
+        plt.plot(ypoints, marker='o')
+        bot.send_message(message.chat.id, plt.show())
 def weight(message):
     global wit
     wit = float(message.text)
@@ -23,7 +30,7 @@ def weight(message):
     bot.register_next_step_handler(msg, height)
 
 def height(message):
-    global hit
+    global hit, current_date
     hit = float(message.text)
     bmi = wit*10000 / (hit*hit)
     if (bmi < 18.5):
@@ -38,15 +45,7 @@ def height(message):
     elif ( bmi >=30):
         health_condition = "suffering from Obesity"
     now = datetime.datetime.now()
-    current_date = now.strftime("%Y:%m:%d")
-    global lst_wit_time
-    lst_wit_date = [wit, current_date]
-    bot.send_message(message.chat.id, f"your BMI is: {round(bmi, 2)}\n \nYou are {health_condition}  {lst_wit_date}")
+    current_date = now.strftime("%Y/%m/%d")
+    bot.send_message(message.chat.id, f"your BMI is: {round(bmi, 2)}\n \nYou are {health_condition}")
 
-
-@bot.message_handler(func=lambda m: True)
-def info(message):
-    if message.text == "weight chart":
-        bot.send_message(message.chat.id, lst)
-    
 bot.infinity_polling()
