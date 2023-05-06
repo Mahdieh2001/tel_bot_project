@@ -1,13 +1,17 @@
 import telebot
 
-bot = telebot.TeleBot("")
+bot = telebot.TeleBot("5906211167:AAFG-i9_ljPz_HR6Pwb_5uCfruU4ROmQt8M")
 
 first_button = telebot.types.InlineKeyboardButton("Button 1", url = "https://t.me/wasted_food_0")
-second_button = telebot.types.InlineKeyboardButton("Button 2", url = "https://www.theodinproject.com/dashboard")
+second_button = telebot.types.InlineKeyboardButton("Button 2", callback_data="Hi!")
 
 markup_hello = telebot.types.InlineKeyboardMarkup(row_width=1)
 
 markup_hello.add(first_button, second_button)
+
+@bot.callback_query_handler(func=lambda call:True)
+def callback(call):
+    bot.answer_callback_query(call.id, "You clicked on hi!", show_alert=True)
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
